@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -35,6 +34,7 @@
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
   <div class="box">
@@ -53,12 +53,24 @@
       messagingSenderId: "419419713307",
       appId: "1:419419713307:web:cba6a47995923df91f2dbe"
     };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.database();
 
     auth.onAuthStateChanged(user => {
       if (user) {
-        document.getElementById("userInfo").innerText = "Sei loggato come: " + user.email;
+        const uid = user.uid;
+        db.ref("utenti/" + uid).once("value")
+          .then(snapshot => {
+            const data = snapshot.val();
+            if (data) {
+              document.getElementById("userInfo").innerText =
+                `Sei loggato come: ${data.email}\nRegistrato il: ${new Date(data.timestamp).toLocaleString()}`;
+            } else {
+              document.getElementById("userInfo").innerText = "Sei loggato come: " + user.email;
+            }
+          });
       } else {
         window.location.href = "index.html";
       }
