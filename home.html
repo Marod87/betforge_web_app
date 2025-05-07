@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BetForge - Home</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .box {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #d32f2f;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background-color: #b71c1c; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="box">
+    <h1>Benvenuto!</h1>
+    <p id="userInfo">Caricamento...</p>
+    <button onclick="logout()">Esci</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDjS50lxZCcxJhax6Zb5zagNNu29Co5KjM",
+      authDomain: "betforge-2d7ea.firebaseapp.com",
+      databaseURL: "https://betforge-2d7ea-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "betforge-2d7ea",
+      storageBucket: "betforge-2d7ea.firebasestorage.app",
+      messagingSenderId: "419419713307",
+      appId: "1:419419713307:web:cba6a47995923df91f2dbe"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById("userInfo").innerText = "Sei loggato come: " + user.email;
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "index.html";
+      });
+    }
+  </script>
+</body>
+</html>
