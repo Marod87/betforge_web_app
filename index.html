@@ -69,7 +69,6 @@
       messagingSenderId: "419419713307",
       appId: "1:419419713307:web:cba6a47995923df91f2dbe"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
@@ -108,7 +107,13 @@
           window.location.href = "home.html";
         })
         .catch(error => {
-          alert("Errore: " + error.message);
+          if (error.code === 'auth/wrong-password') {
+            alert("Password errata. Riprova.");
+          } else if (error.code === 'auth/user-not-found') {
+            alert("Utente non trovato. Registrati prima di accedere.");
+          } else {
+            alert("Errore: " + error.message);
+          }
         });
     }
 
@@ -122,7 +127,11 @@
           window.location.href = "home.html";
         })
         .catch(error => {
-          alert("Errore: " + error.message);
+          if (error.code === 'auth/email-already-in-use') {
+            alert("L'email è già registrata. Prova ad accedere.");
+          } else {
+            alert("Errore: " + error.message);
+          }
         });
     }
   </script>
