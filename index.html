@@ -122,6 +122,12 @@
         })
         .catch(error => { alert("Errore: " + error.message); });
     }
+    function salvaUtenteNelDatabase(user) {
+  const userRef = db.ref("utenti/" + user.uid);
+  userRef.set({
+    email: user.email
+  });
+}
   </script>
 </body>
 </html>
