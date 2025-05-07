@@ -91,7 +91,6 @@
   salvaUtenteNelDatabase(user);
   window.location.href = "home.html";
 })
-        })
         .catch(error => {
           alert("Errore: " + error.message);
         });
@@ -115,17 +114,19 @@
       auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
   const user = userCredential.user;
-  salvaUtenteNelDatabase(user);
-  window.location.href = "home.html";
+  function salvaUtenteNelDatabase(user) {
+  if (user) {
+    const userData = {
+      email: user.email,
+      uid: user.uid,
+      timestamp: new Date().toISOString()
+    };
+    firebase.database().ref("utenti/" + user.uid).set(userData);
+  }
+}
 })
         })
         .catch(error => { alert("Errore: " + error.message); });
-    }
-    function salvaUtenteNelDatabase(user) {
-  const userRef = db.ref("utenti/" + user.uid);
-  userRef.set({
-    email: user.email
-  });
 }
   </script>
 </body>
