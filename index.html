@@ -72,13 +72,26 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    function salvaUtenteNelDatabase(user) {
+  if (user) {
+    const userData = {
+      email: user.email,
+      uid: user.uid,
+      timestamp: new Date().toISOString()
+    };
+    firebase.database().ref("utenti/" + user.uid).set(userData);
+  }
+}
     const db = firebase.database();
 
     function loginConGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
         .then(result => {
-          window.location.href = "home.html";
+  const user = result.user;
+  salvaUtenteNelDatabase(user);
+  window.location.href = "home.html";
+})
         })
         .catch(error => {
           alert("Errore: " + error.message);
@@ -89,7 +102,11 @@
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       auth.signInWithEmailAndPassword(email, password)
-        .then(() => { window.location.href = "home.html"; })
+        .then((result) => {
+  const user = result.user;
+  salvaUtenteNelDatabase(user);
+  window.location.href = "home.html";
+})
         .catch(error => { alert("Errore: " + error.message); });
     }
 
@@ -97,9 +114,11 @@
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          db.ref("utenti/" + userCredential.user.uid).set({ email });
-          window.location.href = "home.html";
+        .then((userCredential) => {
+  const user = userCredential.user;
+  salvaUtenteNelDatabase(user);
+  window.location.href = "home.html";
+})
         })
         .catch(error => { alert("Errore: " + error.message); });
     }
