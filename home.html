@@ -6,8 +6,8 @@
   <title>BetForge - Home</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f2f2f2, #e0e0e0);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -16,30 +16,44 @@
     }
     .box {
       background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
       text-align: center;
+      max-width: 450px;
+      width: 100%;
+    }
+    h1 {
+      margin-bottom: 0.75rem;
+      color: #333;
+    }
+    p {
+      margin-top: 0;
+      font-size: 1.1rem;
+      color: #555;
     }
     button {
-      margin-top: 1rem;
+      margin-top: 2rem;
       padding: 0.75rem 1.5rem;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       background-color: #d32f2f;
       color: white;
+      font-size: 1rem;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
-    button:hover { background-color: #b71c1c; }
+    button:hover {
+      background-color: #b71c1c;
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
   <div class="box">
-    <h1>Benvenuto!</h1>
-    <p id="userInfo">Caricamento...</p>
+    <h1>Benvenuto in BetForge</h1>
+    <p id="userInfo">Caricamento dati utente...</p>
     <button onclick="logout()">Esci</button>
   </div>
 
@@ -56,21 +70,10 @@
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.database();
 
     auth.onAuthStateChanged(user => {
       if (user) {
-        const uid = user.uid;
-        db.ref("utenti/" + uid).once("value")
-          .then(snapshot => {
-            const data = snapshot.val();
-            if (data) {
-              document.getElementById("userInfo").innerText =
-                `Sei loggato come: ${data.email}\nRegistrato il: ${new Date(data.timestamp).toLocaleString()}`;
-            } else {
-              document.getElementById("userInfo").innerText = "Sei loggato come: " + user.email;
-            }
-          });
+        document.getElementById("userInfo").innerText = "Hai effettuato l'accesso come: " + user.email;
       } else {
         window.location.href = "index.html";
       }
