@@ -6,34 +6,60 @@
   <title>BetForge - Accesso</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f3f3;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #141e30, #243b55);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
     }
     .container {
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: #ffffff;
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       text-align: center;
+      width: 100%;
       max-width: 400px;
-      width: 100%;
     }
-    input, button {
+    h2 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    input {
       width: 100%;
-      padding: 0.5rem;
-      margin: 0.5rem 0;
-      border-radius: 5px;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    input:focus {
+      border-color: #d32f2f;
+      outline: none;
     }
     button {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
       background-color: #d32f2f;
       color: white;
-      border: none;
       cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #b71c1c;
+    }
+    hr {
+      margin: 1.5rem 0;
+      border: none;
+      border-top: 1px solid #ccc;
     }
   </style>
 
@@ -70,19 +96,14 @@
 
     function salvaUtenteNelDatabase(user) {
       if (user) {
-        console.log("Salvataggio utente nel DB...");
         const userData = {
           email: user.email,
           uid: user.uid,
           timestamp: new Date().toISOString()
         };
         db.ref("utenti/" + user.uid).set(userData)
-          .then(() => {
-            console.log("Utente salvato correttamente");
-          })
-          .catch((error) => {
-            console.error("Errore salvataggio:", error);
-          });
+          .then(() => console.log("Utente salvato correttamente"))
+          .catch(error => console.error("Errore salvataggio:", error));
       }
     }
 
@@ -90,14 +111,12 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
         .then(result => {
-          console.log("Login Google OK");
-          const user = result.user;
-          console.log(user);
-          salvaUtenteNelDatabase(user);
+          salvaUtenteNelDatabase(result.user);
           alert("Login con Google riuscito!");
+          window.location.href = "home.html";
         })
         .catch(error => {
-          console.error("Errore login Google:", error);
+          alert("Errore: " + error.message);
         });
     }
 
@@ -106,14 +125,12 @@
       const password = document.getElementById("password").value;
       auth.signInWithEmailAndPassword(email, password)
         .then(result => {
-          console.log("Login email OK");
-          const user = result.user;
-          console.log(user);
-          salvaUtenteNelDatabase(user);
+          salvaUtenteNelDatabase(result.user);
           alert("Accesso riuscito!");
+          window.location.href = "home.html";
         })
         .catch(error => {
-          console.error("Errore login email:", error);
+          alert("Errore: " + error.message);
         });
     }
 
@@ -122,17 +139,16 @@
       const password = document.getElementById("password").value;
       auth.createUserWithEmailAndPassword(email, password)
         .then(result => {
-          console.log("Registrazione OK");
-          const user = result.user;
-          console.log(user);
-          salvaUtenteNelDatabase(user);
+          salvaUtenteNelDatabase(result.user);
           alert("Registrazione riuscita!");
+          window.location.href = "home.html";
         })
         .catch(error => {
-          console.error("Errore registrazione:", error);
+          alert("Errore: " + error.message);
         });
     }
   </script>
 </body>
 </html>
+
 
