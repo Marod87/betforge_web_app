@@ -4,43 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BetForge - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #f2f2f2, #e0e0e0);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
       margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: white;
     }
     .box {
       background: white;
-      padding: 2.5rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      color: #333;
+      padding: 2rem;
+      border-radius: 15px;
       text-align: center;
-      max-width: 450px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      max-width: 420px;
       width: 100%;
     }
     h1 {
-      margin-bottom: 0.75rem;
-      color: #333;
+      color: #d32f2f;
+      margin-bottom: 1rem;
     }
-    p {
-      margin-top: 0;
-      font-size: 1.1rem;
-      color: #555;
+    #userInfo {
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
     }
     button {
-      margin-top: 2rem;
       padding: 0.75rem 1.5rem;
-      border: none;
-      border-radius: 6px;
       background-color: #d32f2f;
+      border: none;
+      border-radius: 8px;
       color: white;
-      font-size: 1rem;
       cursor: pointer;
+      font-size: 1rem;
       transition: background-color 0.3s ease;
     }
     button:hover {
@@ -73,7 +75,7 @@
 
     auth.onAuthStateChanged(user => {
       if (user) {
-        document.getElementById("userInfo").innerText = "Hai effettuato l'accesso come: " + user.email;
+        document.getElementById("userInfo").innerText = "Accesso effettuato con: " + user.email;
       } else {
         window.location.href = "index.html";
       }
