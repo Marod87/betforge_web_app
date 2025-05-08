@@ -61,42 +61,48 @@
 
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyDjS50lxZCcxJhax6Zb5zagNNu29Co5KjM",
-      authDomain: "betforge-2d7ea.firebaseapp.com",
-      databaseURL: "https://betforge-2d7ea-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "betforge-2d7ea",
-      storageBucket: "betforge-2d7ea.firebasestorage.app",
-      messagingSenderId: "419419713307",
-      appId: "1:419419713307:web:cba6a47995923df91f2dbe"
+  apiKey: "AIzaSyDjS50lxZCcxJhax6Zb5zagNNu29Co5KjM",
+  authDomain: "betforge-2d7ea.firebaseapp.com",
+  databaseURL: "https://betforge-2d7ea-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "betforge-2d7ea",
+  storageBucket: "betforge-2d7ea.firebasestorage.app",
+  messagingSenderId: "419419713307",
+  appId: "1:419419713307:web:cba6a47995923df91f2dbe"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+function salvaUtenteNelDatabase(user) {
+  if (user) {
+    const userData = {
+      email: user.email,
+      uid: user.uid,
+      timestamp: new Date().toISOString()
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+    db.ref("utenti/" + user.uid).set(userData)
+      .then(() => {
+        console.log("Utente salvato correttamente");
+      })
+      .catch((error) => {
+        console.error("Errore nel salvataggio:", error);
+      });
+  }
+}
 
-    function salvaUtenteNelDatabase(user) {
-      if (user) {
-        const userData = {
-          email: user.email,
-          uid: user.uid,
-          timestamp: new Date().toISOString()
-        };
-        db.ref("utenti/" + user.uid).set(userData);
-      }
-    }
-
-    function loginConGoogle() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then(result => {
-          const user = result.user;
-          salvaUtenteNelDatabase(user);
-          window.location.href = "home.html";
-        })
-        .catch(error => {
-          alert("Errore: " + error.message);
-        });
-    }
-
+function loginConGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then(result => {
+      const user = result.user;
+      salvaUtenteNelDatabase(user);
+      window.location.href = "home.html";
+    })
+    .catch(error => {
+      alert("Errore: " + error.message);
+    });
+}
     function accedi() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
