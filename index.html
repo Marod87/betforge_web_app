@@ -6,70 +6,45 @@
   <title>BetForge - Accesso</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #141e30, #243b55);
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
     .container {
-      background: #ffffff;
-      padding: 2.5rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       text-align: center;
-      width: 100%;
       max-width: 400px;
-    }
-    h2 {
-      margin-bottom: 1rem;
-      color: #333;
-    }
-    input {
       width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
     }
-    input:focus {
-      border-color: #d32f2f;
-      outline: none;
+    input, button {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      border-radius: 5px;
     }
     button {
-      width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 0.75rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
       background-color: #d32f2f;
       color: white;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #b71c1c;
-    }
-    hr {
-      margin: 1.5rem 0;
       border: none;
-      border-top: 1px solid #ccc;
+      cursor: pointer;
     }
   </style>
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
   <div class="container">
-    <h2>Accedi a BetForge</h2>
+    <h2>Accesso a BetForge</h2>
     <button onclick="loginConGoogle()">Accedi con Google</button>
     <hr>
     <input type="email" id="email" placeholder="Email" />
@@ -91,7 +66,7 @@
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.database();
+    const db = firebase.database(); // << QUESTA RIGA DEVE STARE QUI
 
     function salvaUtenteNelDatabase(user) {
       if (user) {
@@ -102,7 +77,7 @@
         };
         db.ref("utenti/" + user.uid).set(userData)
           .then(() => console.log("Utente salvato correttamente"))
-          .catch(error => console.error("Errore salvataggio:", error));
+          .catch((error) => console.error("Errore nel salvataggio:", error));
       }
     }
 
@@ -110,12 +85,13 @@
       const provider = new firebase.auth.GoogleAuthProvider();
       auth.signInWithPopup(provider)
         .then(result => {
-          salvaUtenteNelDatabase(result.user);
-          alert("Login con Google riuscito!");
-          window.location.href = "home.html";
+          console.log("Login Google OK");
+          const user = result.user;
+          salvaUtenteNelDatabase(user);
+          alert("Login Google riuscito!");
         })
         .catch(error => {
-          alert("Errore: " + error.message);
+          console.error("Errore login Google:", error);
         });
     }
 
@@ -124,12 +100,12 @@
       const password = document.getElementById("password").value;
       auth.signInWithEmailAndPassword(email, password)
         .then(result => {
+          console.log("Login email OK");
           salvaUtenteNelDatabase(result.user);
           alert("Accesso riuscito!");
-          window.location.href = "home.html";
         })
         .catch(error => {
-          alert("Errore: " + error.message);
+          console.error("Errore login email:", error);
         });
     }
 
@@ -138,12 +114,12 @@
       const password = document.getElementById("password").value;
       auth.createUserWithEmailAndPassword(email, password)
         .then(result => {
+          console.log("Registrazione OK");
           salvaUtenteNelDatabase(result.user);
           alert("Registrazione riuscita!");
-          window.location.href = "home.html";
         })
         .catch(error => {
-          alert("Errore: " + error.message);
+          console.error("Errore registrazione:", error);
         });
     }
   </script>
