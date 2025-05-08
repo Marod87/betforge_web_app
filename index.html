@@ -91,17 +91,14 @@
 
     function salvaUtenteNelDatabase(user) {
       if (user) {
-        console.log("Salvataggio in corso per:", user.email);
         const userData = {
           email: user.email,
           uid: user.uid,
           timestamp: new Date().toISOString()
         };
         db.ref("utenti/" + user.uid).set(userData)
-          .then(() => console.log("Utente salvato correttamente nel database"))
+          .then(() => console.log("Utente salvato correttamente"))
           .catch(error => console.error("Errore salvataggio DB:", error));
-      } else {
-        console.warn("Utente non definito");
       }
     }
 
@@ -113,7 +110,6 @@
           window.location.href = "home.html";
         })
         .catch(error => {
-          console.error("Errore Google login:", error);
           alert("Errore: " + error.message);
         });
     }
@@ -127,7 +123,6 @@
           window.location.href = "home.html";
         })
         .catch(error => {
-          console.error("Errore accesso email:", error);
           if (error.code === 'auth/wrong-password') {
             alert("Password errata. Riprova.");
           } else if (error.code === 'auth/user-not-found') {
@@ -147,7 +142,6 @@
           window.location.href = "home.html";
         })
         .catch(error => {
-          console.error("Errore registrazione:", error);
           if (error.code === 'auth/email-already-in-use') {
             alert("Email già registrata. Effettua l'accesso.");
           } else {
@@ -158,6 +152,4 @@
   </script>
 </body>
 </html>
-
-
 
