@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BetForge - Accesso</title>
+  <title>BetForge - Test Accesso</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -23,103 +23,97 @@
       max-width: 400px;
       width: 100%;
     }
-    h2 { margin-bottom: 1rem; }
-    input {
-      display: block;
+    input, button {
       width: 100%;
       padding: 0.5rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
+      margin: 0.5rem 0;
       border-radius: 5px;
     }
     button {
       background-color: #d32f2f;
       color: white;
       border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 5px;
       cursor: pointer;
-      margin: 0.5rem 0;
     }
-    button:hover { background-color: #b71c1c; }
   </style>
+
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
   <div class="container">
-    <h2>Accedi con Google</h2>
+    <h2>Test Login BetForge</h2>
     <button onclick="loginConGoogle()">Accedi con Google</button>
     <hr>
-    <h2>Oppure con email</h2>
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
-    <button onclick="accedi()">Accedi</button>
+    <button onclick="accedi()">Accedi con Email</button>
     <button onclick="registrati()">Registrati</button>
   </div>
 
   <script>
     const firebaseConfig = {
-  apiKey: "AIzaSyDjS50lxZCcxJhax6Zb5zagNNu29Co5KjM",
-  authDomain: "betforge-2d7ea.firebaseapp.com",
-  databaseURL: "https://betforge-2d7ea-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "betforge-2d7ea",
-  storageBucket: "betforge-2d7ea.firebasestorage.app",
-  messagingSenderId: "419419713307",
-  appId: "1:419419713307:web:cba6a47995923df91f2dbe"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-
-function salvaUtenteNelDatabase(user) {
-  if (user) {
-    const userData = {
-      email: user.email,
-      uid: user.uid,
-      timestamp: new Date().toISOString()
+      apiKey: "AIzaSyDjS50lxZCcxJhax6Zb5zagNNu29Co5KjM",
+      authDomain: "betforge-2d7ea.firebaseapp.com",
+      databaseURL: "https://betforge-2d7ea-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "betforge-2d7ea",
+      storageBucket: "betforge-2d7ea.firebasestorage.app",
+      messagingSenderId: "419419713307",
+      appId: "1:419419713307:web:cba6a47995923df91f2dbe"
     };
-    db.ref("utenti/" + user.uid).set(userData)
-      .then(() => {
-        console.log("Utente salvato correttamente");
-      })
-      .catch((error) => {
-        console.error("Errore nel salvataggio:", error);
-      });
-  }
-}
 
-function loginConGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(result => {
-      const user = result.user;
-      salvaUtenteNelDatabase(user);
-      window.location.href = "home.html";
-    })
-    .catch(error => {
-      alert("Errore: " + error.message);
-    });
-}
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    function salvaUtenteNelDatabase(user) {
+      if (user) {
+        console.log("Salvataggio utente nel DB...");
+        const userData = {
+          email: user.email,
+          uid: user.uid,
+          timestamp: new Date().toISOString()
+        };
+        db.ref("utenti/" + user.uid).set(userData)
+          .then(() => {
+            console.log("Utente salvato correttamente");
+          })
+          .catch((error) => {
+            console.error("Errore salvataggio:", error);
+          });
+      }
+    }
+
+    function loginConGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(result => {
+          console.log("Login Google OK");
+          const user = result.user;
+          console.log(user);
+          salvaUtenteNelDatabase(user);
+          alert("Login con Google riuscito!");
+        })
+        .catch(error => {
+          console.error("Errore login Google:", error);
+        });
+    }
+
     function accedi() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       auth.signInWithEmailAndPassword(email, password)
-        .then((result) => {
+        .then(result => {
+          console.log("Login email OK");
           const user = result.user;
+          console.log(user);
           salvaUtenteNelDatabase(user);
-          window.location.href = "home.html";
+          alert("Accesso riuscito!");
         })
         .catch(error => {
-          if (error.code === 'auth/wrong-password') {
-            alert("Password errata. Riprova.");
-          } else if (error.code === 'auth/user-not-found') {
-            alert("Utente non trovato. Registrati prima di accedere.");
-          } else {
-            alert("Errore: " + error.message);
-          }
+          console.error("Errore login email:", error);
         });
     }
 
@@ -127,19 +121,18 @@ function loginConGoogle() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
+        .then(result => {
+          console.log("Registrazione OK");
+          const user = result.user;
+          console.log(user);
           salvaUtenteNelDatabase(user);
-          window.location.href = "home.html";
+          alert("Registrazione riuscita!");
         })
         .catch(error => {
-          if (error.code === 'auth/email-already-in-use') {
-            alert("L'email è già registrata. Prova ad accedere.");
-          } else {
-            alert("Errore: " + error.message);
-          }
+          console.error("Errore registrazione:", error);
         });
     }
   </script>
 </body>
 </html>
+
