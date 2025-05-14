@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Pronostico Calcio Completo</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #2c5364);
+      color: #fff;
+      padding: 40px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 30px;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 20px;
+      display: block;
+      font-size: 1.2em;
+    }
+    select, button {
+      padding: 12px;
+      width: 80%;
+      max-width: 400px;
+      margin: 10px auto;
+      border-radius: 10px;
+      border: none;
+      font-size: 1em;
+      display: block;
+      margin-bottom: 20px;
+    }
+    select {
+      background-color: #ffffff;
+      color: #333;
+    }
+    button {
+      background-color: #ff9800;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #e65100;
+    }
+    #result {
+      margin-top: 30px;
+      background-color: rgba(255, 255, 255, 0.95);
+      color: #222;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 1.1em;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pronostico Calcio - Tutte le Competizioni</h1>
+
+  <label for="league">Scegli una Competizione:</label>
+  <select id="league"></select>
+
+  <label for="team1">Squadra in Casa:</label>
+  <select id="team1"></select>
+
+  <label for="team2">Squadra Ospite:</label>
+  <select id="team2"></select>
+
+  <button onclick="generaPronostico()">Genera Pronostico</button>
+
+  <div id="result"></div>
+
+  <script>
+    const API_KEY = "INSERISCI_LA_TUA_API_KEY";
+    const competitionsMap = {};
+    const teamNameMap = {};
+
+    fetch("https://api.football-data.org/v4/competitions", {
+      headers: { "X-Auth-Token": API_KEY }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const leagues = data.competitions.filter(l => l.type === "LEAGUE" || l.type === "CUP");
+      const leagueSelect = document.getElementById("league");
+      leagueSelect.innerHTML = "<option value=''>-- Seleziona --</option>";
+      leagues.forEach(l => {
+        competitionsMap[l.name] = l.code;
+        const option = document.createElement("option");
+        option.value = l.name;
+        option.textContent = `${l.area.name} - ${l.name}`;
+        leagueSelect.appendChild(option);
+      });
+    });
+
+    document.getElementById("league").addEventListener("change", () => {
+      const leagueName = document.getElementById("league").value;
+      const code = competitionsMap[leagueName];
+      fetch(`https://api.football-data.org/v4/competitions/${code}/teams`, {
+        headers: { "X-Auth-Token": API_KEY }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const teams = data.teams || [];
+        const team1 = document.getElementById("team1");
+        const team2 = document.getElementById("team2");
+        team1.innerHTML = "<option value=''>-- Seleziona --</option>";
+        team2.innerHTML = "<option value=''>-- Seleziona --</option>";
+        teams.forEach(t => {
+          teamNameMap[t.name] = t.id;
+          const opt1 = new Option(t.name, t.id);
+          const opt2 = new Option(t.name, t.id);
+          team1.appendChild(opt1);
+          team2.appendChild(opt2.cloneNode(true));
+        });
+      });
+    });
+
+    async function generaPronostico() {
+      const leagueName = document.getElementById("league").value;
+      const code = competitionsMap[leagueName];
+      const t1Id = document.getElementById("team1").value;
+      const t2Id = document.getElementById("team2").value;
+      const resBox = document.getElementById("result");
+
+      if (!t1Id || !t2Id || t1Id === t2Id || !code) {
+        resBox.textContent = "⚠️ Seleziona due squadre diverse e una competizione valida.";
+        return;
+      }
+
+      const [standingsRes, match1Res, match2Res] = await Promise.all([
+        fetch(`https://api.football-data.org/v4/competitions/${code}/standings`, { headers: { "X-Auth-Token": API_KEY } }),
+        fetch(`https://api.football-data.org/v4/teams/${t1Id}/matches?status=FINISHED&limit=5`, { headers: { "X-Auth-Token": API_KEY } }),
+        fetch(`https://api.football-data.org/v4/teams/${t2Id}/matches?status=FINISHED&limit=5`, { headers: { "X-Auth-Token": API_KEY } })
+      ]);
+
+      const standingsData = await standingsRes.json();
+      const team1Matches = (await match1Res.json()).matches || [];
+      const team2Matches = (await match2Res.json()).matches || [];
+
+      const table = standingsData.standings?.[0]?.table || [];
+      const stat1 = table.find(t => t.team.id == t1Id);
+      const stat2 = table.find(t => t.team.id == t2Id);
+
+      const diff1 = stat1 ? stat1.goalsFor - stat1.goalsAgainst : 0;
+      const diff2 = stat2 ? stat2.goalsFor - stat2.goalsAgainst : 0;
+
+      let pronostico = "Match equilibrato.";
+      if (stat1 && stat2) {
+        if (stat1.position < stat2.position && diff1 > diff2 + 5) {
+          pronostico = `✅ Vittoria probabile: ${stat1.team.name}`;
+        } else if (stat2.position < stat1.position && diff2 > diff1 + 5) {
+          pronostico = `✅ Vittoria probabile: ${stat2.team.name}`;
+        }
+      }
+
+      let historyHTML = "<h3>📅 Ultimi 5 Match</h3>";
+      const showMatch = m => `${m.utcDate?.slice(0, 10)} - ${m.homeTeam.name} ${m.score.fullTime.home} : ${m.score.fullTime.away} ${m.awayTeam.name}`;
+
+      historyHTML += "<strong>" + team1Matches[0]?.homeTeam?.name + "</strong><ul>";
+      team1Matches.forEach(m => { historyHTML += `<li>${showMatch(m)}</li>`; });
+      historyHTML += "</ul>";
+
+      historyHTML += "<strong>" + team2Matches[0]?.homeTeam?.name + "</strong><ul>";
+      team2Matches.forEach(m => { historyHTML += `<li>${showMatch(m)}</li>`; });
+      historyHTML += "</ul>";
+
+      resBox.innerHTML = `
+        <strong>Match:</strong> ${stat1?.team?.name} vs ${stat2?.team?.name}<br>
+        <strong>Pronostico:</strong> ${pronostico}<br><br>
+        <strong>${stat1?.team?.name}</strong>: Posizione ${stat1?.position}, Punti ${stat1?.points}, Diff. reti ${diff1}<br>
+        <strong>${stat2?.team?.name}</strong>: Posizione ${stat2?.position}, Punti ${stat2?.points}, Diff. reti ${diff2}<br><br>
+        ${historyHTML}
+      `;
+    }
+  </script>
+</body>
+</html>
